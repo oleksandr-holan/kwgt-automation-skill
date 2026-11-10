@@ -49,20 +49,25 @@ Inside `viewgroup_items`:
 | **`TextModule`** | Formatted text or dynamic expression. | `text_expression`, `text_size`, `paint_color` |
 | **`SeriesModule`** | Built-in repeating sequence/series generator. | `series_type`, `series_count`, `series_mode` |
 
-### Dynamic Formulas via `internal_formulas`
-Static values (like `shape_height: 30.0` or `paint_color: "#FFFFFFFF"`) can be replaced with dynamic formulas using the **`internal_formulas`** dictionary:
+### Dynamic Formulas via `internal_formulas` & `internal_toggles`
+Static values (like `shape_height: 30.0` or `paint_color: "#FFFFFFFF"`) are replaced with dynamic formulas using both **`internal_formulas`** and **`internal_toggles`**:
 ```json
 {
   "internal_type": "ShapeModule",
   "shape_type": "RECT",
   "shape_width": 18.0,
   "shape_height": 20.0,
+  "internal_toggles": {
+    "shape_height": 10
+  },
   "internal_formulas": {
-    "shape_height": "$mu(max, 10, mu(round, (tc(split, wg(\"file:///sdcard/Kustom/baro_values_chrono.txt\", raw), \",\", 0) - 694) * 16))$",
-    "paint_color": "$if(tc(split, ...) > 700, #FFFF0000, #FF00E5FF)$"
+    "shape_height": "$mu(max, 10, mu(round, (wg(\"file:///Kustom/pressure.json\", json, .v0) - 752) * 12))$",
+    "paint_color": "$if(wg(...) > 760, #FFFF0000, #FF00E5FF)$"
   }
 }
 ```
+
+> **CRITICAL RULE**: In Kustom's engine, numeric and color properties on shapes MUST have `"internal_toggles": { "<property>": 10 }` (where `10` flags active Calculator/Formula mode). Without `internal_toggles`, Kustom treats the property as static and ignores `internal_formulas`!
 
 ---
 
