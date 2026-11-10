@@ -94,6 +94,11 @@ On Android 10+ (Scoped Storage / SAF), `file:///sdcard/...` or `/storage/emulate
   $if(wg("file:///Kustom/data.json", json, .val), wg("file:///Kustom/data.json", json, .val), wg("file:///sdcard/Kustom/data.json", json, .val))$
   ```
 
+### Gotcha D: Launcher Edge Padding & Safe Margins
+Android launchers (One UI, Pixel Launcher, Nova) enforce rounded corner clipping and inner widget padding (typically 50–70px on each side).
+* **Problem**: Spanning a 24-bar chart across >680px on an 804px canvas pushes the first and last bars into the launcher's clip zone, cutting off Bar 1 and Bar 24.
+* **Solution**: Keep the total chart width around **540–560px** on an 804px canvas (e.g., 24 bars $\times$ 18px width $+$ 23 gaps $\times$ 5px = 547px). This leaves **~128px of safety margin** on both the left and right, ensuring 100% visibility on all launchers.
+
 ---
 
 ## 4. Multi-Bar Chart Architecture (Bars with Numbers)
