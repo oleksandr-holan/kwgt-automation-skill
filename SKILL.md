@@ -92,37 +92,43 @@ termux-job-scheduler \
 * Minimum period on Android N+: 900,000 ms (15 minutes).
 * `--persisted true`: Persists across phone reboots.
 
-### Exporting Feeds for KWGT
-Save feeds to `/sdcard/Kustom/` (or `/sdcard/Documents/`):
-1. **`baro_values.txt`**: Comma-separated newest-first values: `697.4,697.3,697.2`
-2. **`baro_values_chrono.txt`**: Comma-separated oldest-to-newest values (for left-to-right charts): `697.0,697.2,697.4`
-3. **`barometer_history.json`**: Structured JSON for multi-field queries.
+### Exporting Feed for KWGT
+Save a single clean JSON file directly to `/sdcard/Kustom/pressure.json`:
+```json
+{
+  "updated": "21:30",
+  "latest_mmhg": 758.6,
+  "latest_hpa": 1011.4,
+  "values": "758.2,758.3,...,758.6"
+}
+```
+
+* `latest_mmhg`: Current live sea-level calibrated pressure in mmHg.
+* `latest_hpa`: Current live sea-level calibrated pressure in hPa.
+* `updated`: Time of the last reading.
+* `values`: Comma-separated history of readings (oldest to newest).
 
 ---
 
 ## 4. KWGT Formula Patterns & Cheatsheet
 
 ### File Loading via `$wg()`
-* **Raw text / CSV**:
-  ```text
-  $wg("file:///sdcard/Kustom/baro_values_chrono.txt", raw)$
-  ```
 * **JSON extraction**:
   ```text
-  $wg("file:///sdcard/Kustom/barometer_history.json", json, .latest.mmhg)$
-  $wg("file:///sdcard/Kustom/barometer_history.json", json, .readings[0].time)$
+  $wg("file:///sdcard/Kustom/pressure.json", json, .latest_mmhg)$
+  $wg("file:///sdcard/Kustom/pressure.json", json, .updated)$
   ```
 
 ### Array Slicing via `$tc(split)`
-Extract a specific index from a comma-separated string:
+Extract a specific bar's value directly from the single JSON file:
 ```text
-$tc(split, wg("file:///sdcard/Kustom/baro_values_chrono.txt", raw), ",", 0)$
+$tc(split, wg("file:///sdcard/Kustom/pressure.json", json, .values), ",", 0)$
 ```
 
 ### Chart Scaling and Clamping
 Formula to compute bar heights with baseline subtraction, multiplier, and minimum clamp:
 ```text
-$mu(max, 6, mu(round, (tc(split, wg("file:///sdcard/Kustom/baro_values_chrono.txt", raw), ",", index) - 694) * 14))$
+$mu(max, 10, mu(round, (tc(split, wg("file:///sdcard/Kustom/pressure.json", json, .values), ",", index) - 752) * 16))$
 ```
 
 ---
