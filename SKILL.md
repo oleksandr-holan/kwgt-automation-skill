@@ -169,12 +169,12 @@ $$\text{Offset} = \text{Official Sea-Level Pressure (MSL)} - \text{Raw Sensor Re
   - Total Calibration Offset: **$+81.7\text{ hPa}$ ($+61.3\text{ mmHg}$)**
 
 ### Background Daemon via `termux-job-scheduler`
-Schedule lightweight logging every 15 minutes that persists across reboots:
+Schedule lightweight logging every 30 minutes (24 bars = 12-hour history window) that persists across reboots:
 ```bash
 termux-job-scheduler \
     -s /data/data/com.termux/files/home/barometer-kwgt-logger/record.sh \
     --job-id 777 \
-    --period-ms 900000 \
+    --period-ms 1800000 \
     --battery-not-low false \
     --persisted true
 ```
