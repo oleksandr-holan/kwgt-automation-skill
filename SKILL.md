@@ -43,7 +43,7 @@ Inside `viewgroup_items`:
 
 | Module Type | Purpose | Key Attributes |
 | :--- | :--- | :--- |
-| **`OverlapLayerModule`** | Stacks child elements on top of each other. Auto-sizes to largest child. | `position_anchor`, `position_x_offset`, `position_y_offset`, `viewgroup_items` |
+| **`OverlapLayerModule`** | Stacks child elements on top of each other. Auto-sizes to largest child. | `position_anchor`, `position_offset_x`, `position_offset_y`, `viewgroup_items` |
 | **`StackLayerModule`** | Arranges children horizontally or vertically. | `config_stacking` (`HORIZONTAL`, `VERTICAL`, `HORIZONTAL_BOTTOM`, `HORIZONTAL_CENTER`), `config_margin` |
 | **`ShapeModule`** | Geometric vector shape (bars, cards, dividers). | `shape_type` (`RECT`, `CIRCLE`, `SLICE`), `shape_width`, `shape_height`, `shape_corners`, `paint_color` |
 | **`TextModule`** | Formatted text or dynamic expression. | `text_expression`, `text_size`, `paint_color`, `text_align` |
@@ -149,7 +149,7 @@ To build a professional multi-bar chart where numbers sit inside/on the bars:
      - `text_expression`: `$mu(round, ..., 0)$`
      - `text_size`: `9.5`
      - `position_anchor`: `"TOP"`
-     - `position_y_offset`: `6.0`
+     - `position_offset_y`: `6.0`
      - *Why this works*: The `OverlapLayerModule` automatically resizes its height to match the dynamic `ShapeModule`. Anchoring text to `"TOP"` with an offset of 6px ensures the numbers dynamically track the moving tops of the bars across all data fluctuations!
 3. **Contrast Styling**:
    * Past bars: Translucent accent (`#7700E5FF`) with white text (`#E6FFFFFF`).
