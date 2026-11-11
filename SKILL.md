@@ -99,15 +99,10 @@ Android launchers (One UI, Pixel Launcher, Nova) enforce rounded corner clipping
 * **Problem**: Spanning a 24-bar chart across >680px on an 804px canvas pushes the first and last bars into the launcher's clip zone, cutting off Bar 1 and Bar 24.
 * **Solution**: Keep the total chart width around **540–560px** on an 804px canvas (e.g., 24 bars $\times$ 18px width $+$ 23 gaps $\times$ 5px = 547px). This leaves **~128px of safety margin** on both the left and right, ensuring 100% visibility on all launchers.
 
-### Gotcha E: KWGT Aggressive File Caching on `wg()` & Dynamic Cache-Busting
-Kustom treats local `file:///` URLs through its internal network/disk cache layer. If you use a static path like `wg("file:///sdcard/Kustom/data.json", json, ...)`, KWGT caches the result indefinitely and **never re-reads the file from disk**, even if background scripts update the file every minute!
-* **Problem**: Background logger updates `pressure.json`, but the widget on the home screen stays frozen with old data.
-* **Solution 1 (Minute Cache-Busting Parameter)**: Append a dynamic date/time parameter to the URL:
-  ```text
-  $wg("file:///sdcard/Kustom/data.json?v=" + df(yyyyMMddHHmm), json, .latest_value)$
-  ```
-  Because `df(yyyyMMddHHmm)` ticks every minute (e.g. `202611111045`), Kustom treats each minute's read as a new URI, completely invalidating the disk cache and loading fresh data every minute.
-* **Solution 2 (Tap-to-Refresh Touch Action)**: Add an `internal_events` handler to a background shape:
+### Gotcha E: Local `file:///` URIs Do NOT Support Query Parameters (`?v=...`)
+While online HTTP/HTTPS URLs can bypass caching using query parameters (`?v=" + df(...)`), **local `file:///` URIs do NOT support query parameters**.
+* **Problem**: On Android, passing `file:///sdcard/Kustom/data.json?v=123` causes the underlying Java `File`/`FileInputStream` to look for a literal filename containing `?v=123` on disk, which fails with `ENOENT` (File not found), rendering all bars flat and returning blank text.
+* **Solution (Tap-to-Refresh Touch Action)**: Assign a `SINGLE_TAP` touch action with `TEXT_UPDATE` to the background hitbox or chart layer:
   ```json
   "internal_events": [
     {
@@ -117,13 +112,7 @@ Kustom treats local `file:///` URLs through its internal network/disk cache laye
     }
   ]
   ```
-* **Solution 3 (Broadcast Intent Ping from Logger)**: When your background script updates the file, wake Kustom via broadcast:
-  ```bash
-  am broadcast --user 0 -a org.kustom.action.SEND_VAR \
-    --es org.kustom.action.EXT_NAME "barometer" \
-    --es org.kustom.action.VAR_NAME "updated" \
-    --es org.kustom.action.VAR_VALUE "$(date +%H:%M)" >/dev/null 2>&1 || true
-  ```
+* **Solution (KWGT Update Mode)**: Ensure KWGT's update mode in app settings is set to **Fast** or **Default** so that background widget redraw intervals check file mtimes.
 
 ---
 
