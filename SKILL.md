@@ -114,6 +114,22 @@ While online HTTP/HTTPS URLs can bypass caching using query parameters (`?v=" + 
   ```
 * **Solution (KWGT Update Mode)**: Ensure KWGT's update mode in app settings is set to **Fast** or **Default** so that background widget redraw intervals check file mtimes.
 
+### Gotcha F: The Ultimate Cache-Free Pipeline: In-Memory Broadcasts (`$br`) with File Fallback
+The gold standard for feeding automated script/sensor data to KWGT without cache issues:
+1. **Background Script**: Saves persistent 24h history to `/sdcard/Kustom/pressure.json`, then immediately broadcasts variables to KWGT's in-memory store:
+   ```bash
+   am broadcast --user 0 -a org.kustom.action.SEND_VAR \
+     --es org.kustom.action.EXT_NAME "barometer" \
+     --esa org.kustom.action.VAR_NAME_ARRAY "latest_mmhg,latest_hpa,updated,v0,v1..." \
+     --esa org.kustom.action.VAR_VALUE_ARRAY "761.3,1014.9,10:44,757.7,757.6..."
+   ```
+2. **Widget Formula**: Prefer live `$br()` variable, fallback to persistent `$wg()` file:
+   ```text
+   $if(br(barometer, v0), br(barometer, v0), wg("file:///sdcard/Kustom/pressure.json", json, .v0))$
+   ```
+   - **Zero Caching**: Kustom redraws immediately upon receiving the intent.
+   - **Reboot Safe**: Reads the saved file if KWGT reloads before the first broadcast arrives.
+
 ---
 
 ## 4. Multi-Bar Chart Architecture (Bars with Numbers)
