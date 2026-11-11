@@ -180,7 +180,7 @@ termux-job-scheduler \
 ```
 
 ### Clean Single-File JSON Feed Format
-Store history as direct `.v0`..`.v23` keys for instant, bug-free Kustom evaluation:
+Store history as direct `.v0`..`.vN` keys for instant, bug-free Kustom evaluation:
 ```json
 {
   "updated": "21:47",
@@ -188,9 +188,16 @@ Store history as direct `.v0`..`.v23` keys for instant, bug-free Kustom evaluati
   "latest_hpa": 1011.4,
   "v0": 768.9,
   "v1": 769.0,
-  "v23": 758.6
+  "v17": 758.6
 }
 ```
+
+### Launcher Viewport & Edge Clipping Prevention
+Android home screen launchers (Niagara Launcher, Nova, Pixel Launcher) often enforce side paddings and grid constraints:
+- On an 804px wide canvas (4x1 widget), total chart width exceeding ~580px can get clipped at the left and right edges (e.g. showing only 20 of 24 bars).
+- **Rule of Thumb**: For reliable edge-to-edge display across all devices and launcher paddings, use **18 bars** (e.g. 18 x 30m = 9h timeline).
+  - Bar width: `23.0px`, Gap: `7.0px` $\rightarrow$ Total chart width: `533.0px`.
+  - Leaves `(804 - 533) / 2 = 135.5px` safety margin on each side, guaranteeing that every bar from start to latest active is fully visible.
 
 ---
 
